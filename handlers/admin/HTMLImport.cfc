@@ -84,17 +84,23 @@ component extends="preside.system.base.AdminHandler" {
 			, title      = "HTMLImport:title"
 			, returnUrl  = event.buildAdminLink( linkTo="SiteTree.editPage", queryString="id=#pageId#" )
 			, args       = {
-				  userId                  = event.getAdminUserId()
-				, page                    = pageId
-				, zipFile                 = formData.zip_file            ?: {}
-				, pageHeading             = formData.page_heading        ?: ""
-				, childPagesHeading       = formData.child_pages_heading ?: ""
-				, assetFolder             = formData.asset_folder        ?: ""
-				, childPagesType          = formData.child_pages_type    ?: ""
-				, childPagesEnabled       = isTrue( formData.child_pages_enabled ?: "" )
-				, isDraft                 = saveAsDraft
-				, data                    = formData
+				  userId            = event.getAdminUserId()
+				, page              = pageId
+				, zipFile           = formData.zip_file            ?: {}
+				, pageHeading       = formData.page_heading        ?: ""
+				, childPagesHeading = formData.child_pages_heading ?: ""
+				, assetFolder       = formData.asset_folder        ?: ""
+				, childPagesType    = formData.child_pages_type    ?: ""
+				, childPagesEnabled = isTrue( formData.child_pages_enabled ?: "" )
+				, isDraft           = saveAsDraft
+				, data              = formData
 			  }
+		);
+
+		event.audit(
+			  type     = "htmlImport"
+			, action   = "import"
+			, recordId = pageId
 		);
 
 		setNextEvent( url=event.buildAdminLink(
