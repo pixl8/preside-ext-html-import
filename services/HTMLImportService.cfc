@@ -203,6 +203,8 @@ component {
 		,          any    logger
 		,          any    progress
 	) {
+		var assetFolder = $getPresideSetting( category="htmlimport", setting="htmlimport_asset_folder", default="importHtmlFiles" );
+
 		return dynamicFindAndReplaceService.dynamicFindAndReplace( source=arguments.htmlContent, regexPattern='<img[^>]*src="(.*?)"[^>]*>', recurse=false, processor=function( captureGroups ) {
 			var srcPath = arguments.captureGroups[ 2 ] ?: "";
 
@@ -211,7 +213,7 @@ component {
 				var filePath = "#htmlFileDir#/#srcPath#";
 
 				var assetId = assetManagerService.addAsset(
-					  folder            = "importHtmlFiles"
+					  folder            = assetFolder
 					, ensureUniqueTitle = true
 					, fileName          = fileName
 					, filePath          = filePath
