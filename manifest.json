@@ -1,0 +1,7 @@
+{
+	  "id"        : "preside-ext-html-import"
+	, "title"     : "HTML Import"
+	, "author"    : "Teon Ooi"
+	, "version"   : "$VERSION_NUMBER"
+	, "dependsOn" : []
+}

@@ -1,0 +1,21 @@
+{
+    "name":"PresideCMS Extension: HTML Import",
+    "type":"preside-extensions",
+    "version":"$VERSION_NUMBER",
+    "location":"$DOWNLOAD_URL",
+    "private":false,
+    "author":"Teon Ooi",
+    "directory":"application/extensions",
+    "repository":{
+        "type":"git",
+        "URL":"https://github.com/teonator/preside-ext-html-import"
+    },
+    "slug":"preside-ext-html-import",
+    "projectURL":"https://github.com/teonator/preside-ext-html-import",
+    "ignore":[
+        ".git/*",
+        ".gitignore",
+        ".github/*",
+        ".twgit_features_subject"
+    ]
+}
