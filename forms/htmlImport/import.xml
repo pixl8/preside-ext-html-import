@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form i18nBaseUri="HTMLImport:">
+	<tab id="default">
+		<fieldset id="default" sortOrder="10">
+			<field name="page"                       control="siteTreePagePicker"       sortOrder="10" required="true" />
+			<field name="zip_file"                   control="fileupload"               sortOrder="20" required="true" accept="application/zip" />
+			<field name="page_heading"               control="enumSelect"               sortOrder="30" enum="htmlImportPageHeading" default="" />
+			<field name="child_pages_enabled"        control="yesNoSwitch"              sortOrder="40" />
+			<field name="child_pages_heading"        control="enumSelect"               sortOrder="50" class="html-import-child-pages-field" enum="htmlImportChildPagesHeading" default="h2">
+				<rule validator="requiredIfOtherFieldChecked">
+					<param name="otherField"   value="child_pages_enabled" />
+					<param name="checkedValue" value="1" />
+				</rule>
+			</field>
+			<field name="child_pages_type"           control="htmlImportPageTypePicker" sortOrder="60" class="html-import-child-pages-field">
+				<rule validator="requiredIfOtherFieldChecked">
+					<param name="otherField"   value="child_pages_enabled" />
+					<param name="checkedValue" value="1" />
+				</rule>
+			</field>
+		</fieldset>
+	</tab>
+</form>
