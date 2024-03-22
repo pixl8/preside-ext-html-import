@@ -25,6 +25,7 @@ component {
 		,          string  childPagesHeading = "h2"
 		,          string  childPagesType    = "standard_page"
 		,          boolean isDraft           = false
+		,          string  assetFolder       = $getPresideSetting( category="htmlimport", setting="htmlimport_asset_folder", default="importHtmlFiles" )
 		,          struct  data              = {}
 		,          any     logger
 		,          any     progress
@@ -133,6 +134,7 @@ component {
 		, required string  parentPageId
 		,          string  childPagesType = "standard_page"
 		,          boolean isDraft        = false
+		,          string  assetFolder    = $getPresideSetting( category="htmlimport", setting="htmlimport_asset_folder", default="importHtmlFiles" )
 		,          struct  data           = {}
 		,          any     logger
 		,          any     progress
@@ -200,11 +202,10 @@ component {
 	private string function _processImages(
 		  required string htmlContent
 		, required string htmlFileDir
+		,          string assetFolder = $getPresideSetting( category="htmlimport", setting="htmlimport_asset_folder", default="importHtmlFiles" )
 		,          any    logger
 		,          any    progress
 	) {
-		var assetFolder = $getPresideSetting( category="htmlimport", setting="htmlimport_asset_folder", default="importHtmlFiles" );
-
 		return dynamicFindAndReplaceService.dynamicFindAndReplace( source=arguments.htmlContent, regexPattern='<img[^>]*src="(.*?)"[^>]*>', recurse=false, processor=function( captureGroups ) {
 			var srcPath = arguments.captureGroups[ 2 ] ?: "";
 

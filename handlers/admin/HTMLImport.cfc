@@ -19,6 +19,7 @@ component extends="preside.system.base.AdminHandler" {
 		var savedData = rc.savedData ?: {
 			  page             = page.id        ?: ""
 			, child_pages_type = page.page_type ?: ""
+			, asset_folder     = getSystemSetting( category="htmlimport", setting="htmlimport_asset_folder", default="importHtmlFiles" )
 		};
 
 		args.formName       = "htmlImport.import";
@@ -88,6 +89,7 @@ component extends="preside.system.base.AdminHandler" {
 				, zipFile                 = formData.zip_file            ?: {}
 				, pageHeading             = formData.page_heading        ?: ""
 				, childPagesHeading       = formData.child_pages_heading ?: ""
+				, assetFolder             = formData.asset_folder        ?: ""
 				, childPagesType          = formData.child_pages_type    ?: ""
 				, childPagesEnabled       = isTrue( formData.child_pages_enabled ?: "" )
 				, isDraft                 = saveAsDraft

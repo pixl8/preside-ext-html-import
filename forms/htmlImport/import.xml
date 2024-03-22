@@ -18,6 +18,7 @@
 					<param name="checkedValue" value="1" />
 				</rule>
 			</field>
+			<field name="asset_folder"               control="assetFolderPicker"        sortOrder="70" required="true" />
 		</fieldset>
 	</tab>
 </form>
