@@ -97,10 +97,13 @@ component extends="preside.system.base.AdminHandler" {
 			  }
 		);
 
+		StructAppend( formData, { "zip_file"=formData.zip_file.fileName ?: "" } );
+
 		event.audit(
 			  type     = "htmlImport"
 			, action   = "import"
 			, recordId = pageId
+			, detail   = formData
 		);
 
 		setNextEvent( url=event.buildAdminLink(
