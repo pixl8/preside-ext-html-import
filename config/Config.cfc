@@ -35,7 +35,7 @@ component {
 
 	private void function _setupAssetManager( required struct settings  ) {
 		settings.assetmanager.folders.importHtmlFiles = {
-			  label  = "Imported HTML files"
+			  label  = "Images from HTML Import"
 			, hidden = false
 		};
 	}
