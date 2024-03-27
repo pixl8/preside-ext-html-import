@@ -4,14 +4,14 @@
     "version":"$VERSION_NUMBER",
     "location":"$DOWNLOAD_URL",
     "private":false,
-    "author":"Teon Ooi",
+    "author":"Pixl8 Interactive",
     "directory":"application/extensions",
     "repository":{
         "type":"git",
-        "URL":"https://github.com/teonator/preside-ext-html-import"
+        "URL":"https://github.com/pixl8/preside-ext-html-import"
     },
     "slug":"preside-ext-html-import",
-    "projectURL":"https://github.com/teonator/preside-ext-html-import",
+    "projectURL":"https://github.com/pixl8/preside-ext-html-import",
     "ignore":[
         ".git/*",
         ".gitignore",
