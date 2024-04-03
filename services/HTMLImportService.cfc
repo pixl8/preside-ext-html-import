@@ -148,49 +148,45 @@ component {
 			var parentPage = siteTreeService.getPage( id=arguments.parentPageId, selectFields=[ "id", "title", "_hierarchy_slug", "page_type" ], allowDrafts=true );
 
 			for ( var i=1; i<=totalPages; i++ ) {
-				var title   = $helpers.isEmptyString( arguments.pages[ i ].title ) ? parentPage.title : arguments.pages[ i ].title;
-				var content = _processImages( argumentCollection=arguments, htmlContent=arguments.pages[ i ].content );
+				var title  = $helpers.isEmptyString( arguments.pages[ i ].title ) ? parentPage.title : arguments.pages[ i ].title;
+				var slug   = $helpers.slugify( title );
 
-				var slug = $helpers.slugify( title );
+				var pageId   = "";
+				var pageType = "";
 
 				if ( arguments.pages[ i ].child ) {
-					var pageId = siteTreeService.getPageIdBySlug( slug="#parentPage._hierarchy_slug##slug#/" );
-
-					if ( !$helpers.isEmptyString( pageId ) ) {
-						arguments.logger?.info( "Updating #pageTypeName#: #title#" );
-
-						siteTreeService.editPage(
-							  id           = pageId
-							, title        = title
-							, main_content = content
-							, isDraft      = arguments.isDraft
-						);
-					} else {
-						arguments.logger?.info( "Creating #pageTypeName#: #title#" );
-
-						pageId = siteTreeService.addPage(
-							  page_type    = arguments.childPagesType
-							, slug         = slug
-							, parent_page  = parentPage.id
-							, title        = title
-							, main_content = content
-							, isDraft      = arguments.isDraft
-						);
-					}
-
-					arguments.pages[ i ].id = pageId;
+					pageId       = siteTreeService.getPageIdBySlug( slug="#parentPage._hierarchy_slug##slug#/" );
+					pageTypeName = $translateResource( uri="page-types.#arguments.childPagesType#:name", defaultValue=arguments.childPagesType );
 				} else {
-					arguments.logger?.info( "Updating #$translateResource( uri="page-types.#parentPage.page_type#:name", defaultValue=parentPage.page_type )#: #title#" );
+					pageId       = parentPageId;
+					pageTypeName = $translateResource( uri="page-types.#parentPage.page_type#:name", defaultValue=parentPage.page_type );
+				}
+
+				var content = _processImages( argumentCollection=arguments, htmlContent=arguments.pages[ i ].content, pageId=pageId );
+
+				if ( !$helpers.isEmptyString( pageId ) ) {
+					arguments.logger?.info( "Updating #pageTypeName#: #title#" );
 
 					siteTreeService.editPage(
-						  id           = parentPageId
+						  id           = pageId
 						, title        = title
 						, main_content = content
 						, isDraft      = arguments.isDraft
 					);
+				} else {
+					arguments.logger?.info( "Creating #pageTypeName#: #title#" );
 
-					arguments.pages[ i ].id = parentPageId;
+					pageId = siteTreeService.addPage(
+						  page_type    = arguments.childPagesType
+						, slug         = slug
+						, parent_page  = parentPage.id
+						, title        = title
+						, main_content = content
+						, isDraft      = arguments.isDraft
+					);
 				}
+
+				arguments.pages[ i ].id = pageId;
 			}
 		}
 
@@ -199,26 +195,69 @@ component {
 		return totalPages;
 	}
 
+	private struct function _getHashes(
+		  required string htmlContent
+		,          any    logger
+		,          any    progress
+	) {
+		var images  = {};
+		var widgets = REMatch( "\{\{image:([^:]+):image\}\}", arguments.htmlContent );
+
+		for ( var widget in widgets ) {
+			var matched = UrlDecode( REReplace( widget, "\{\{image:([^:]+):image\}\}", "\1" ) );
+
+			if ( IsJSON( matched ) ) {
+				var config = DeserializeJSON( matched );
+
+				if ( !$helpers.isEmptyString( config.asset ?: "" ) ) {
+					var bin = assetManagerService.getAssetBinary( config.asset );
+
+					if ( !IsNull( bin ) ) {
+						StructAppend( images, { "#Hash( bin )#"=config.asset } );
+					}
+				}
+			}
+		}
+
+		return images;
+	}
+
 	private string function _processImages(
 		  required string htmlContent
 		, required string htmlFileDir
 		,          string assetFolder = $getPresideSetting( category="htmlimport", setting="htmlimport_asset_folder", default="importHtmlFiles" )
+		,          string pageId = ""
 		,          any    logger
 		,          any    progress
 	) {
+		var hashes = {};
+		if ( !$helpers.isEmptyString( pageId ) ) {
+			var page = siteTreeService.getPage( pageId );
+
+			if ( !$helpers.isEmptyString( page.main_content ?: "" ) ) {
+				hashes = _getHashes( argumentCollection=arguments, htmlContent=page.main_content );
+			}
+		}
+
 		return dynamicFindAndReplaceService.dynamicFindAndReplace( source=arguments.htmlContent, regexPattern='<img[^>]*src="(.*?)"[^>]*>', recurse=false, processor=function( captureGroups ) {
 			var srcPath = arguments.captureGroups[ 2 ] ?: "";
 
 			if ( !$helpers.isEmptyString( srcPath ) ) {
 				var fileName = ListLast( srcPath, "/" );
 				var filePath = "#htmlFileDir#/#srcPath#";
+				var fileHash = Hash( FileReadBinary( filePath ) );
 
-				var assetId = assetManagerService.addAsset(
-					  folder            = assetFolder
-					, ensureUniqueTitle = true
-					, fileName          = fileName
-					, filePath          = filePath
-				);
+				var assetId = "";
+				if ( StructKeyExists( hashes, fileHash ) ) {
+					assetId = hashes[ fileHash ];
+				} else {
+					assetId = assetManagerService.addAsset(
+						  folder            = assetFolder
+						, ensureUniqueTitle = true
+						, fileName          = fileName
+						, filePath          = filePath
+					);
+				}
 
 				if ( !$helpers.isEmptyString( assetId ) ) {
 					var configs = {
