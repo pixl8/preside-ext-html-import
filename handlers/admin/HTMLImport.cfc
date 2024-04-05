@@ -1,7 +1,8 @@
 component extends="preside.system.base.AdminHandler" {
 
-	property name="sitetreeService"   inject="SitetreeService";
-	property name="htmlImportService" inject="HTMLImportService";
+	property name="sitetreeService"           inject="SitetreeService";
+	property name="htmlImportService"         inject="HTMLImportService";
+	property name="htmlImportStorageProvider" inject="HTMLImportStorageProvider";
 
 	public function preHandler( event, rc, prc ) {
 		super.preHandler( argumentCollection = arguments );
@@ -77,6 +78,11 @@ component extends="preside.system.base.AdminHandler" {
 			);
 		}
 
+		var zipFileName = formData.zip_file.fileName ?: "";
+		var zipFilePath = "#CreateUUID()#/#zipFileName#";
+
+		htmlImportStorageProvider.putObject( object=formData.zip_file.binary, path=zipFilePath, private=true );
+
 		var taskId = createTask(
 			  event      = "admin.HtmlImport.importInBackgroundThread"
 			, runNow     = true
@@ -86,7 +92,7 @@ component extends="preside.system.base.AdminHandler" {
 			, args       = {
 				  userId            = event.getAdminUserId()
 				, page              = pageId
-				, zipFile           = formData.zip_file            ?: {}
+				, zipFilePath       = zipFilePath
 				, pageHeading       = formData.page_heading        ?: ""
 				, childPagesHeading = formData.child_pages_heading ?: ""
 				, assetFolder       = formData.asset_folder        ?: ""
@@ -97,7 +103,7 @@ component extends="preside.system.base.AdminHandler" {
 			  }
 		);
 
-		StructAppend( formData, { "zip_file"=formData.zip_file.fileName ?: "" } );
+		StructAppend( formData, { "zip_file"=zipFileName } );
 
 		event.audit(
 			  type     = "htmlImport"
