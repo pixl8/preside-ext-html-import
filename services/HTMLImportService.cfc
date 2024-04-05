@@ -7,6 +7,7 @@ component {
 	property name="siteTreeService"              inject="SiteTreeService";
 	property name="assetManagerService"          inject="AssetManagerService";
 	property name="dynamicFindAndReplaceService" inject="DynamicFindAndReplaceService";
+	property name="htmlImportStorageProvider"    inject="HTMLImportStorageProvider";
 
 	variables._lib   = [];
 	variables._jsoup = "";
@@ -18,7 +19,7 @@ component {
 	}
 
 	public string function importFromZipFile(
-		  required struct  zipFile
+		  required string  zipFilePath
 		,          string  page              = ""
 		,          string  pageHeading       = "h1"
 		,          boolean childPagesEnabled = false
@@ -36,10 +37,10 @@ component {
 		arguments.logger?.info( "Importing HTML from ZIP..." );
 
 		try {
-			if ( !$helpers.isEmptyString( arguments.zipFile.path ?: "" ) ) {
+			if ( !$helpers.isEmptyString( arguments.zipFilePath ) ) {
 				arguments.logger?.info( "Unpacking ZIP..." );
 
-				var htmlFileDir = _unpackZipFile( zipFilePath=arguments.zipFile.path );
+				var htmlFileDir = _unpackZipFile( zipFilePath=arguments.zipFilePath );
 				var htmlContent = _getHtmlContent( htmlFileDir=htmlFileDir );
 
 				if ( !$helpers.isEmptyString( htmlContent ) ) {
@@ -87,12 +88,16 @@ component {
 					}
 
 					totalPages = _processPages( argumentCollection=arguments, pages=pages, htmlFileDir=htmlFileDir, parentPageId=parentPageId );
+				} else {
+					arguments.logger?.error( "No HTML file found in the ZIP." );
 				}
 			}
 		} catch( any e ) {
 			rethrow;
 		} finally {
 			try {
+				htmlImportStorageProvider.deleteObject( path=arguments.zipFilePath, private=true );
+
 				DirectoryDelete( zipDir, true );
 			} catch( any e ){}
 		}
@@ -109,11 +114,20 @@ component {
 	}
 
 	private string function _unpackZipFile( required string zipFilePath ) {
-		var tmpDir = ExpandPath( "/uploads/tmp/#CreateUUID()#" );
+		var tmpDir = "";
 
-		DirectoryCreate( tmpDir, true, true );
+		var localFilePath = htmlImportStorageProvider.getObjectLocalPath(
+			  path    = arguments.zipFilePath
+			, private = true
+		);
 
-		zip action="unzip" destination=tmpDir file=arguments.zipFilePath;
+		if ( FileExists( localFilePath ) ) {
+			tmpDir = ExpandPath( "/uploads/tmp/#CreateUUID()#" );
+
+			DirectoryCreate( tmpDir, true, true );
+
+			zip action="unzip" destination=tmpDir file=localFilePath;
+		}
 
 		return tmpDir;
 	}
@@ -226,7 +240,7 @@ component {
 		  required string htmlContent
 		, required string htmlFileDir
 		,          string assetFolder = $getPresideSetting( category="htmlimport", setting="htmlimport_asset_folder", default="importHtmlFiles" )
-		,          string pageId = ""
+		,          string pageId      = ""
 		,          any    logger
 		,          any    progress
 	) {
