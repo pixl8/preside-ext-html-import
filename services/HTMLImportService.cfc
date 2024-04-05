@@ -63,21 +63,21 @@ component {
 						ArrayAppend( pagesHeading, arguments.childPagesHeading );
 					}
 
-					var tagName = "";
-					var tagText = "";
+					var tagText     = "";
+					var tagSelector = ArrayToList( pagesHeading, "," );
 
 					for ( var element in elements ) {
-						var tagName = element.tagName();
 						var tagText = element.text();
+						var tagHtml = element.outerHtml();
 
-						if ( ArrayFindNoCase( pagesHeading, tagName ) && !$helpers.isEmptyString( tagText ) ) {
+						if ( !$helpers.isEmptyString( tagText ) && _isElementPageHeading( elementHtml=tagHtml, tagSelector=tagSelector ) ) {
 							if ( !$helpers.isEmptyString( pageTitle ) || !$helpers.isEmptyString( pageContent ) ) {
 								ArrayAppend( pages, { title=pageTitle, content=pageContent, child=pageChild } );
 							}
 
 							pageTitle   = tagText;
 							pageContent = "";
-							pageChild   = arguments.childPagesHeading == tagName;
+							pageChild   = _isElementPageHeading( elementHtml=tagHtml, tagSelector=arguments.childPagesHeading );
 						} else {
 							pageContent &= element.toString();
 						}
@@ -234,6 +234,16 @@ component {
 		}
 
 		return images;
+	}
+
+	private boolean function _isElementPageHeading(
+		  required string elementHtml
+		, required string tagSelector
+	) {
+		var element         = variables._jsoup.parse( arguments.elementHtml );
+		var selectedElement = element.select( arguments.tagSelector );
+
+		return ArrayLen( selectedElement );
 	}
 
 	private string function _processImages(
