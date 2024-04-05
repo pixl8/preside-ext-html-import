@@ -88,6 +88,8 @@ component {
 					}
 
 					totalPages = _processPages( argumentCollection=arguments, pages=pages, htmlFileDir=htmlFileDir, parentPageId=parentPageId );
+				} else {
+					arguments.logger?.error( "No HTML file found in the ZIP." );
 				}
 			}
 		} catch( any e ) {
