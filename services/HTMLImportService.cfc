@@ -35,6 +35,7 @@ component {
 		var totalPages = 0;
 
 		arguments.logger?.info( "Importing HTML from ZIP..." );
+		arguments.progress?.setProgress( 10 );
 
 		try {
 			if ( !$helpers.isEmptyString( arguments.zipFilePath ) ) {
@@ -45,6 +46,7 @@ component {
 
 				if ( !$helpers.isEmptyString( htmlContent ) ) {
 					arguments.logger?.info( "Parsing HTML..." );
+					arguments.progress?.setProgress( 20 );
 
 					var html     = variables._jsoup.parse( htmlContent );
 					var elements = html.body().children();
@@ -109,6 +111,7 @@ component {
 		}
 
 		arguments.logger?.info( "Done." );
+		arguments.progress?.setProgress( 100 );
 
 		return parentPageId;
 	}
@@ -201,6 +204,8 @@ component {
 				}
 
 				arguments.pages[ i ].id = pageId;
+
+				arguments.progress?.setProgress( ( ( 70 / totalPages ) * i ) + 20 );
 			}
 		}
 
