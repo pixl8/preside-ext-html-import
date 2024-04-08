@@ -6,6 +6,7 @@ component {
 
 	property name="siteTreeService"              inject="SiteTreeService";
 	property name="assetManagerService"          inject="AssetManagerService";
+	property name="presideObjectService"         inject="PresideObjectService";
 	property name="dynamicFindAndReplaceService" inject="DynamicFindAndReplaceService";
 	property name="htmlImportStorageProvider"    inject="HTMLImportStorageProvider";
 
@@ -159,14 +160,16 @@ component {
 		$announceInterception( "preHTMLImportPages", { pages=arguments.pages, data=arguments.data } );
 
 		var totalPages   = ArrayLen( arguments.pages );
-		var pageTypeName = $translateResource( uri="page-types.#arguments.childPagesType#:name", defaultValue=arguments.childPagesType );
 
 		if ( totalPages ) {
+			var pageTypeName   = "";
+			var pageSlugLength = presideObjectService.getObjectPropertyAttribute( objectName="page", propertyName="slug", attributeName="maxLength", defaultValue=50 );
+
 			var parentPage = siteTreeService.getPage( id=arguments.parentPageId, selectFields=[ "id", "title", "_hierarchy_slug", "page_type" ], allowDrafts=true );
 
 			for ( var i=1; i<=totalPages; i++ ) {
 				var title  = $helpers.isEmptyString( arguments.pages[ i ].title ) ? parentPage.title : arguments.pages[ i ].title;
-				var slug   = $helpers.slugify( title );
+				var slug   = $helpers.slugify( str=title, maxLength=pageSlugLength );
 
 				var pageId   = "";
 				var pageType = "";
