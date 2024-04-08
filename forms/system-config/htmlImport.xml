@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<form feature="htmlImport" i18nBaseUri="system-config.htmlImport:" >
+	<tab id="default" sortOrder="10">
+		<fieldset id="default" sortOrder="10">
+			<field name="htmlimport_asset_folder" sortOrder="10" control="assetFolderPicker" />
+		</fieldset>
+	</tab>
+</form>
