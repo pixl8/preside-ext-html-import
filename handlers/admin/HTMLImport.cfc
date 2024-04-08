@@ -83,6 +83,8 @@ component extends="preside.system.base.AdminHandler" {
 
 		htmlImportStorageProvider.putObject( object=formData.zip_file.binary, path=zipFilePath, private=true );
 
+		StructAppend( formData, { "zip_file"=zipFileName } );
+
 		var taskId = createTask(
 			  event      = "admin.HtmlImport.importInBackgroundThread"
 			, runNow     = true
@@ -103,7 +105,7 @@ component extends="preside.system.base.AdminHandler" {
 			  }
 		);
 
-		StructAppend( formData, { "zip_file"=zipFileName } );
+
 
 		event.audit(
 			  type     = "htmlImport"
