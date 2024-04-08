@@ -13,6 +13,30 @@ The zip file must contain at least one *.html file and the folder for images if 
     └── world.png
 ```
 
+## Allowed page types
+
+To specify the page types that are allowed for importing HTML.
+
+Example: `config/Config.cfc`
+```
+settings.htmlImport.allowedPageTypes = [ "standard_page" ];
+```
+
+## Custom heading
+
+To specify custom page heading with CSS selector instead of standard h1 to h5.
+
+Example: `config/Config.cfc`
+```
+settings.enum.htmlImportPageHeading = settings.enum.htmlImportPageHeading ?: []
+ArrayAppend( settings.enum.htmlImportPageHeading, "p.title>span" );
+```
+
+Example: `i18n/enum/htmlImportPageHeading.properties`
+```
+p.title>span.label=Title (Google Docs)
+```
+
 ## License
 
 This project is licensed under the GPLv2 License - see the LICENSE.txt file for details.
