@@ -52,10 +52,12 @@ component {
 					var html     = variables._jsoup.parse( htmlContent );
 					var elements = html.body().children();
 
-					var pages       = [];
-					var pageTitle   = "";
-					var pageContent = "";
-					var pageChild   = false;
+					var pages         = [];
+					var pageTitle     = "";
+					var pageTitleHtml = "";
+					var pageContent   = "";
+					var pageChild     = false;
+					var hasChildren   = false;
 
 					var pagesHeading = [];
 					if ( !$helpers.isEmptyString( arguments.pageHeading ) ) {
@@ -72,22 +74,38 @@ component {
 					for ( var element in elements ) {
 						var tagName = element.tagName();
 						var tagText = element.text();
+						var tagHtml = element.outerHtml();
 
 						if ( ArrayFindNoCase( pagesHeading, tagName ) && !$helpers.isEmptyString( tagText ) ) {
 							if ( !$helpers.isEmptyString( pageTitle ) || !$helpers.isEmptyString( pageContent ) ) {
-								ArrayAppend( pages, { title=pageTitle, content=pageContent, child=pageChild } );
+								ArrayAppend( pages, { title=pageTitle, content=pageContent, child=pageChild, rawTitle=pageTitleHtml } );
 							}
 
-							pageTitle   = tagText;
-							pageContent = "";
-							pageChild   = arguments.childPagesHeading == tagName;
+							pageTitle     = tagText;
+							pageTitleHtml = tagHtml;
+							pageContent   = "";
+							pageChild     = arguments.childPagesHeading == tagName;
+
+							if ( pageChild ) {
+								hasChildren = true;
+							}
 						} else {
 							pageContent &= element.toString();
 						}
 					}
 
 					if ( !$helpers.isEmptyString( pageTitle ) || !$helpers.isEmptyString( pageContent ) ) {
-						ArrayAppend( pages, { title=pageTitle, content=pageContent, child=pageChild } );
+						ArrayAppend( pages, { title=pageTitle, content=pageContent, child=pageChild, rawTitle=pageTitleHtml } );
+					}
+
+					if ( !hasChildren ) {
+						pageContent = "";
+
+						for ( var page in pages ) {
+							pageContent &= page.rawTitle & page.content;
+						}
+
+						pages = [ { title="", content=pageContent, child=false, rawTitle="" } ];
 					}
 
 					totalPages = _processPages( argumentCollection=arguments, pages=pages, htmlFileDir=htmlFileDir, parentPageId=parentPageId );
@@ -106,9 +124,9 @@ component {
 		}
 
 		if ( totalPages ) {
-			arguments.logger?.info( "Total #totalPages# pages have been created." );
+			arguments.logger?.info( "Total #totalPages# pages have been created/updated." );
 		} else {
-			arguments.logger?.warn( "No pages have been created." );
+			arguments.logger?.warn( "No pages have been created/updated." );
 		}
 
 		arguments.logger?.info( "Done." );
