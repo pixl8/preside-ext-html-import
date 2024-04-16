@@ -99,6 +99,8 @@ component {
 					}
 
 					if ( !hasChildren ) {
+						arguments.logger?.warn( "Multiple page titles found. Unable to update page title." );
+
 						pageContent = "";
 
 						for ( var page in pages ) {
