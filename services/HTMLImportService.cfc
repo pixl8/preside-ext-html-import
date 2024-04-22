@@ -248,6 +248,10 @@ component {
 		  required string elementHtml
 		, required string tagSelector
 	) {
+		if ( $helpers.isEmptyString( arguments.tagSelector ) ) {
+			return false;
+		}
+
 		var element         = variables._jsoup.parse( arguments.elementHtml );
 		var selectedElement = element.select( arguments.tagSelector );
 
